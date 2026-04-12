@@ -30,7 +30,7 @@ void configureGame() {
   server.serveStatic("/game/", SD, "/game")
         .setCacheControl("max-age=3600");
   
-  server.on("/sethighscore", HTTP_GET, [](AsyncWebserverRequest *request) {
+  server.on("/sethighscore", HTTP_GET, [](AsyncWebServerRequest *request) {
     if (request->hasParam("n")) {
       if (request->hasParam("s")){
         //in JSON speichern
@@ -43,7 +43,7 @@ void configureGame() {
 void configureGuestbook() {
   
   server.serveStatic("/guestbook/", SD, "/guestbook")
-        .setDefaultFile("index.html")
+        .setDefaultFile("index.html");
 
 }
 
