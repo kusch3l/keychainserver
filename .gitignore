@@ -5,4 +5,5 @@
 .vscode/launch.json
 .vscode/ipch
 sdcard/wifi.txt
+sdcard/config.txt
 old
