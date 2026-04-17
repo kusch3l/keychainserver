@@ -1,6 +1,5 @@
 #include <Arduino.h>
 
-
 #include "FS.h"
 #include "SD.h"
 #include "SPI.h"
@@ -9,6 +8,11 @@
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include <AsyncJson.h>
+#include <ArduinoJson.h>
+#include <algorithm>
+#include <vector>
+#include <string>
 
 #define SPI_CS 2
 
@@ -32,14 +36,105 @@ void configureGame() {
   server.serveStatic("/game/", SD, "/game")
         .setCacheControl("max-age=3600");
   
-  server.on("/sethighscore", HTTP_GET, [](AsyncWebServerRequest *request) {
-    if (request->hasParam("n")) {
-      if (request->hasParam("s")){
-        //in JSON speichern
-      }
-    }
+  server.on("/api/highscore", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncResponseStream *response = request->beginResponseStream("application/json");
+    JsonDocument doc;
+    File file = SD.open("/game/highscore.json", "r");
+    deserializeJson(doc, file);
+    file.close();
+    serializeJson(doc, *response);
+    request->send(response);
   });
+  
+  server.addHandler(new AsyncCallbackJsonWebHandler("/api/highscore", [](AsyncWebServerRequest *request, JsonVariant &json){
+    JsonObject jsonData = json.as<JsonObject>();
+    String name = jsonData["name"]|"unknown";
+    int score = jsonData["score"]|-1;
+    if (debug) {
+      Serial.println("Highscore received:");
+      serializeJsonPretty(jsonData,Serial);
+      Serial.println();
+    }
+    if (name.length()>=16) name=name.substring(0,16);
+    JsonDocument doc;
 
+    // Read the file
+    File file = SD.open("/game/highscore.json", "r");
+    deserializeJson(doc, file);
+    file.close();
+    if (debug) Serial.println("File opened and Json deserialized");
+
+    //Append new element
+    JsonObject obj = doc.add<JsonObject>();
+    obj["name"]=name;
+    obj["score"]=score;
+    if (debug) {
+      serializeJsonPretty(doc,Serial);
+      Serial.println();
+      Serial.println("highscore appended");
+    }
+
+    //sorting everything
+    struct Entry {
+      int score;
+      const char* name;
+    };
+
+    std::vector<Entry> entries;
+
+    //write Json in vector  
+    if (debug) Serial.println("create vector");
+    for (JsonVariantConst v : doc.as<JsonArray>()) {
+      entries.push_back({v["score"], v["name"]});
+    }
+    for (const auto& item : entries) {
+      Serial.print("name: ");
+      Serial.print(item.name);
+      Serial.print(", score: ");
+      Serial.println(item.score);
+    }
+    //if (debug) Serial.println(to_string(entries));
+
+    //sort
+    if (debug) Serial.println("Sortieren");
+    std::sort(entries.begin(), entries.end(), [](const Entry &a, const Entry &b) {
+      return a.score > b.score;
+    });
+    if (debug) Serial.println("fertig sortiert");
+
+    for (const auto& item : entries) {
+      Serial.print("name: ");
+      Serial.print(item.name);
+      Serial.print(", score: ");
+      Serial.println(item.score);
+    }
+
+    //remove last entry if >=100
+    if (entries.size()>=100){
+      if (debug) Serial.println("100 Entries, remove last");
+      entries.pop_back();
+    }
+
+    // write vektor to json
+    doc.clear();
+    if (debug) Serial.println("writing vektor to json");
+    for (const Entry &entry : entries) {
+      JsonObject v = doc.add<JsonObject>();
+      v["name"] = entry.name;
+      v["score"] = entry.score;
+    }
+    
+    if (debug) serializeJsonPretty(doc, Serial);
+
+    // Write the file
+    if (debug) Serial.println("serialize json and write to sd card");
+    file = SD.open("/game/highscore.json", "w");
+    serializeJson(doc, file);
+    file.close();
+    
+    request->send(200,"application/json", "{\"ok\":true}");
+  }));
+  /**/
 }
 
 void configureGuestbook() {
@@ -52,7 +147,7 @@ void configureGuestbook() {
 void setup(){
 
   // config which parts are active (read from file)
-  bool www = false;
+  bool www = true;
   bool game = false;
   bool guestbook = false;
   bool apmode = true; //toggle whether ESP32 connects to WiFi (false) or creates own WiFi/AccesPoint (true)
@@ -94,6 +189,8 @@ void setup(){
       if (line.startsWith("www=")) {
         if (line.substring(4)=="true"){
           www = true;
+        }else if(line.substring(4)=="false"){
+          www = false;
         }
       }
       if (line.startsWith("game=")) {
@@ -114,8 +211,12 @@ void setup(){
     }
     configFile.close();
     Serial.println("WiFi config loaded from SD: " + ssid);
+    if (debug&&www) {Serial.println("website activated");}
+    if (debug&&game) {Serial.println("game activated");}
+    if (debug&&guestbook) {Serial.println("guestbook activated");}
+    if (debug&&!apmode) {Serial.println("station mode selected");}
   } else {
-    Serial.println("No /wifi.txt - using hardcoded defaults!");
+    Serial.println("No /config.txt - using hardcoded defaults!");
   }
   
   if (apmode){
@@ -123,7 +224,10 @@ void setup(){
     WiFi.mode(WIFI_AP);
     WiFi.softAP(ssid, password);
     delay(3000);
-    Serial.println("WiFi: " + WiFi.softAPSSID()); 
+    Serial.println("WiFi: " + WiFi.softAPSSID());
+    auto ip=WiFi.softAPIP();
+    Serial.print("IP-Adress: ");
+    Serial.println(ip);
   }else{
     WiFi.begin(ssid, password);
     Serial.print("Connecting to " + ssid);
@@ -135,16 +239,27 @@ void setup(){
     Serial.println("IP-Adress: " + WiFi.localIP());
   }
   
-
+  //broken to fix!!!
   //start local mDNS for url keychainserver.local
   if (MDNS.begin("keychainserver")) {
     Serial.println("mDNS: http://keychainserver.local");
   }
 
+
+  if (debug) {Serial.println("start server configuration");}
   //init different parts of webserver
-  if (www) configureWebsite();
-  if (game) configureGame();
-  if (guestbook) configureGuestbook();
+  if (www) {
+    if (debug) {Serial.println("start www configuration");}
+    configureWebsite();
+  }
+  if (game) {
+    if (debug) {Serial.println("start game configuration");}
+    configureGame();
+  }
+  if (guestbook) {
+    if (debug) {Serial.println("start guestbook configuration");}
+    configureGuestbook();
+  }
 
   //start webserver
   server.begin();

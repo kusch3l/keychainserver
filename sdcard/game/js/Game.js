@@ -32,31 +32,31 @@ const hide = el => { el.style.display = 'none'; };
  */
 const defaults = {
     // Options.
-    width : 896 / 2,
-    height : 1152 / 2,
-    originalWidth : 896,
-    originalHeight : 1152,
+    width: 896 / 2,
+    height: 1152 / 2,
+    originalWidth: 896,
+    originalHeight: 1152,
 
-    dotScore : 10,
-    pillScore : 50,
-    defaultLives : 3,
-    soundEnabled : true,
+    dotScore: 10,
+    pillScore: 50,
+    defaultLives: 3,
+    soundEnabled: true,
 
-    events : {
-        'click button.start' : '_onClickStartButton',
-        'click button.menu' : '_onClickMenuButton'
+    events: {
+        'click button.start': '_onClickStartButton',
+        'click button.menu': '_onClickMenuButton'
     }
 };
 
 
-    /* load JSON highscorelist */
-    async function loadHighScore() {
-     const response = await fetch("liste.json");
-     if (!response.ok) throw new Error("Fehler beim Laden: " + response.status);
-     //const scoreList  = await response.json();
-     //console.log("here");
-     return await response.json();
-    }
+/* load JSON highscorelist */
+async function loadHighScore() {
+    const response = await fetch("liste.json");
+    if (!response.ok) throw new Error("Fehler beim Laden: " + response.status);
+    //const scoreList  = await response.json();
+    //console.log("here");
+    return await response.json();
+}
 
 
 
@@ -83,21 +83,21 @@ class JsPacman extends Game {
 
         this.user = null; // variable for username
 
-	this.highScoreList = null; // variable for highscore JSON
+        this.highScoreList = null; // variable for highscore JSON
 
         // write return value of loadHighScore() to this.highScoreList
         loadHighScore().then(daten => {
-         this.highScoreList = daten;
-         //console.log(this.highScoreList);
+            this.highScoreList = daten;
+            //console.log(this.highScoreList);
         });
 
 
-	Object.keys(defaults).forEach(key => {
-         if (key in options) this[key] = options[key];
+        Object.keys(defaults).forEach(key => {
+            if (key in options) this[key] = options[key];
         });
 
         this.model = new GameModel({
-            lives : this.defaultLives
+            lives: this.defaultLives
         });
 
         this.model.fetch();
@@ -105,15 +105,15 @@ class JsPacman extends Game {
         this.render();
 
         this.elements = {
-            splash : this.$('.splash'),
-            start : this.$('.start'),
-            menu : this.$('.menu'),
-            startP1 : this.$('.start-p1'),
-            startReady : this.$('.start-ready'),
-            highScore : this.$('.high-score span'),
-            score : this.$('.p1-score span'),
-            gameOver : this.$('.game-over'),
-            load : this.$('.loadbar')
+            splash: this.$('.splash'),
+            start: this.$('.start'),
+            menu: this.$('.menu'),
+            startP1: this.$('.start-p1'),
+            startReady: this.$('.start-ready'),
+            highScore: this.$('.high-score span'),
+            score: this.$('.p1-score span'),
+            gameOver: this.$('.game-over'),
+            load: this.$('.loadbar')
         };
 
         this.keyboard.on(EVENT_KEY_DOWN, this._onKeyDown.bind(this));
@@ -124,36 +124,36 @@ class JsPacman extends Game {
         this.gamepad.on(EVENT_GAMEPAD_START, this._onGamepadStart.bind(this));
 
         this.sound = new SoundManager({
-            soundEnabled : this.soundEnabled,
-            addSound : this.addSound.bind(this)
+            soundEnabled: this.soundEnabled,
+            addSound: this.addSound.bind(this)
         });
 
         this.lives = new Lives({
-            lives : this.defaultLives + 1,
-            x : 40,
-            y : 1124,
-            model : this.model,
-            factor : this.scaling.getFactor(),
-            addSprite : this.addSprite.bind(this)
+            lives: this.defaultLives + 1,
+            x: 40,
+            y: 1124,
+            model: this.model,
+            factor: this.scaling.getFactor(),
+            addSprite: this.addSprite.bind(this)
         });
 
         this.bonuses = new Bonuses({
-            level : this.model.level,
-            x : 860,
-            y : 1124,
-            model : this.model,
-            factor : this.scaling.getFactor(),
-            addSprite : this.addSprite.bind(this)
+            level: this.model.level,
+            x: 860,
+            y: 1124,
+            model: this.model,
+            factor: this.scaling.getFactor(),
+            addSprite: this.addSprite.bind(this)
         });
 
         // Create main menu dialog
         this.mainMenu = new MainMenuDialog({
-            model : this.model,
-            factor : this.scaling.getFactor(),
-            scaling : this.scaling,
-            originalWidth : this.originalWidth,
-            originalHeight : this.originalHeight,
-            onResume : () => {
+            model: this.model,
+            factor: this.scaling.getFactor(),
+            scaling: this.scaling,
+            originalWidth: this.originalWidth,
+            originalHeight: this.originalHeight,
+            onResume: () => {
                 this._onMainMenuResume();
             }
         });
@@ -185,17 +185,17 @@ class JsPacman extends Game {
                 this.muteSound(true);
             }
         });
-        
+
     }
-     
-	/**
+
+    /**
      * Starts a new level or handles game over/win states.
      */
 
     startLevel() {
         // New level.
 
-	//loadHighScore().then(daten => {this.highScoreList = daten; console.log(this.highScoreList);});
+        //loadHighScore().then(daten => {this.highScoreList = daten; console.log(this.highScoreList);});
         console.log(this.highScoreList);
 
 
@@ -208,7 +208,7 @@ class JsPacman extends Game {
 
         // Game over - loop is already running, just reset and continue.
         if (this.model.status === STATUS_SPLASH && this._gameOver) {
-            
+
 
             this._gameOver = false;
             this.model.level = 1;
@@ -225,14 +225,14 @@ class JsPacman extends Game {
         this.sound.play('intro');
         this.addCallback(this.mainLoop.bind(this));
 
-        document.getElementById("userNameInput").value= "";
+        document.getElementById("userNameInput").value = "";
     }
 
     /**
      * Resets the game state, destroying all characters and items.
      */
     reset() {
-        
+
 
         this.model.mode = null;
 
@@ -289,12 +289,12 @@ class JsPacman extends Game {
             var tile = this.map.tiles[i];
             if (tile.code === '.') {
                 let dot = makeDot({
-                    defaultAnimation : dotAnimationLabel,
-                    map : this.map,
-                    factor : this.scaling.getFactor(),
-                    normalizeRefreshRate : this.normalizeRefreshRate.bind(this),
-                    x : tile.x,
-                    y : tile.y
+                    defaultAnimation: dotAnimationLabel,
+                    map: this.map,
+                    factor: this.scaling.getFactor(),
+                    normalizeRefreshRate: this.normalizeRefreshRate.bind(this),
+                    x: tile.x,
+                    y: tile.y
                 });
                 tile.item = dot;
                 this.addSprite(dot);
@@ -303,12 +303,12 @@ class JsPacman extends Game {
 
             if (tile.code === '*') {
                 let pill = makePill({
-                    defaultAnimation : dotAnimationLabel,
-                    map : this.map,
-                    factor : this.scaling.getFactor(),
-                    normalizeRefreshRate : this.normalizeRefreshRate.bind(this),
-                    x : tile.x,
-                    y : tile.y
+                    defaultAnimation: dotAnimationLabel,
+                    map: this.map,
+                    factor: this.scaling.getFactor(),
+                    normalizeRefreshRate: this.normalizeRefreshRate.bind(this),
+                    x: tile.x,
+                    y: tile.y
                 });
                 tile.item = pill;
                 this.addSprite(pill);
@@ -320,16 +320,16 @@ class JsPacman extends Game {
 
         // Pacman.
         this.pacman = new Pacman({
-            preturn : true,
-            x : 452,
-            y : 848,
+            preturn: true,
+            x: 452,
+            y: 848,
             ...this.model.getSettings('pacman'),
-            map : this.map,
-            factor : this.scaling.getFactor(),
-            normalizeRefreshRate : this.normalizeRefreshRate.bind(this),
-            addGameGhostEatEventListener : listener => this.on('game:ghost:eat', listener),
-            addGameGhostModeFrightenedEnter : listener => this.on('game:ghost:modefrightened:enter', listener),
-            addGameGhostModeFrightenedExit : listener => this.on('game:ghost:modefrightened:exit', listener)
+            map: this.map,
+            factor: this.scaling.getFactor(),
+            normalizeRefreshRate: this.normalizeRefreshRate.bind(this),
+            addGameGhostEatEventListener: listener => this.on('game:ghost:eat', listener),
+            addGameGhostModeFrightenedEnter: listener => this.on('game:ghost:modefrightened:enter', listener),
+            addGameGhostModeFrightenedExit: listener => this.on('game:ghost:modefrightened:exit', listener)
         });
 
         this.pacman.on('item:eatpill', () => {
@@ -411,14 +411,14 @@ class JsPacman extends Game {
         const bonusTile = this.map.tunnels[this.map.tunnels.length - 1];
 
         this.bonus = makeBonus(this.bonusIndex, {
-            map : this.map,
-            dir : 'l',
-            score : this.bonusScore,
-            x : bonusTile.x,
-            y : bonusTile.y,
-            factor : this.scaling.getFactor(),
-            normalizeRefreshRate : this.normalizeRefreshRate.bind(this),
-            getPacmanData : () => this.pacman.getPositionData()
+            map: this.map,
+            dir: 'l',
+            score: this.bonusScore,
+            x: bonusTile.x,
+            y: bonusTile.y,
+            factor: this.scaling.getFactor(),
+            normalizeRefreshRate: this.normalizeRefreshRate.bind(this),
+            getPacmanData: () => this.pacman.getPositionData()
         });
 
         // Bonus reaches target and disappears.
@@ -441,21 +441,21 @@ class JsPacman extends Game {
         // Ghosts.
         const ghostAttrs = {
             ...this.model.getSettings('ghost'),
-            map : this.map,
-            normalizeRefreshRate : this.normalizeRefreshRate.bind(this),
-            factor : this.scaling.getFactor(),
-            addGameGlobalModeEventListener : listener => this.on('game:globalmode', listener),
-            addGameGhostEatenEventListener : listener => this.on('game:ghost:eaten', listener),
-            getPacmanData : () => this.pacman.getPositionData(),
-            addPacmanEatPillEventListener : listener => this.pacman.on('item:eatpill', listener)
+            map: this.map,
+            normalizeRefreshRate: this.normalizeRefreshRate.bind(this),
+            factor: this.scaling.getFactor(),
+            addGameGlobalModeEventListener: listener => this.on('game:globalmode', listener),
+            addGameGhostEatenEventListener: listener => this.on('game:ghost:eaten', listener),
+            getPacmanData: () => this.pacman.getPositionData(),
+            addPacmanEatPillEventListener: listener => this.pacman.on('item:eatpill', listener)
         };
 
         const pinkyTile = this.map.houseCenter.getR();
 
         this.pinky = makeGhost('pinky', {
             ...ghostAttrs,
-            x : pinkyTile.x - this.map.tileWidth / 2,
-            y : pinkyTile.y
+            x: pinkyTile.x - this.map.tileWidth / 2,
+            y: pinkyTile.y
         });
 
         this.addEventListenersToGhost(this.pinky);
@@ -465,8 +465,8 @@ class JsPacman extends Game {
         const blinkyTile = this.map.house.getU().getR();
         this.blinky = makeGhost('blinky', {
             ...ghostAttrs,
-            x : blinkyTile.x - this.map.tileWidth / 2,
-            y : blinkyTile.y
+            x: blinkyTile.x - this.map.tileWidth / 2,
+            y: blinkyTile.y
         });
 
         this.addEventListenersToGhost(this.blinky);
@@ -476,9 +476,9 @@ class JsPacman extends Game {
         const inkyTile = this.map.houseCenter.getL();
         this.inky = makeGhost('inky', {
             ...ghostAttrs,
-            blinky : this.blinky,
-            x : inkyTile.x - 16,
-            y : inkyTile.y
+            blinky: this.blinky,
+            x: inkyTile.x - 16,
+            y: inkyTile.y
         });
 
         this.addEventListenersToGhost(this.inky);
@@ -488,8 +488,8 @@ class JsPacman extends Game {
         const sueTile = this.map.houseCenter.getR().getR();
         this.sue = makeGhost('sue', {
             ...ghostAttrs,
-            x : sueTile.x + 16,
-            y : sueTile.y
+            x: sueTile.x + 16,
+            y: sueTile.y
         });
 
         this.addEventListenersToGhost(this.sue);
@@ -561,31 +561,17 @@ class JsPacman extends Game {
 
             if (this.model.status === STATUS_GAME_OVER) {
 
-                let highScoreStorage = this.model.highScore;
-        	console.log ("highscore: "+ highScoreStorage);
+                //send username and score to server -----------------------------------------------------------------------------
+                fetch('/api/highscore', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: this.user, score: this.model.score })
+                })
 
+                    .then(res => res.json())
 
-	     const neuerEintrag = {
-       		 id: 3,
-     		 name: "",
-     		 punkte: 0
-    	     };
+                    .catch(err => console.error(err));
 
-        	neuerEintrag.name = this.user;
-		neuerEintrag.punkte = highScoreStorage;
-
-		fetch("server.php", {
-			method: "POST",
-			headers: {
-			         "Content-Type": "application/json"
-		        },
-		        body: JSON.stringify(neuerEintrag)
-		})
-		.then(res => res.json())
-		
-		.catch(err => console.error(err));
-
-		//--------------------------------------------------------------------------------------------------------------------
                 hide(this.elements.gameOver);
                 show(this.elements.splash);
                 this._gameOver = true;
@@ -729,9 +715,9 @@ class JsPacman extends Game {
      */
     _isGhostFrightened() {
         return this.blinky.isFrightened() ||
-                this.inky.isFrightened()  ||
-                this.pinky.isFrightened() ||
-                this.sue.isFrightened();
+            this.inky.isFrightened() ||
+            this.pinky.isFrightened() ||
+            this.sue.isFrightened();
     }
 
     /**
@@ -741,7 +727,7 @@ class JsPacman extends Game {
      */
     _isGhostDead() {
         return this.blinky.isDead() ||
-            this.inky.isDead()  ||
+            this.inky.isDead() ||
             this.pinky.isDead() ||
             this.sue.isDead();
     }
@@ -863,21 +849,21 @@ class JsPacman extends Game {
      */
     _onClickStartButton() {
         //-------------------------------------------------------------------------------------------------------------
-    // get username from input field an initialize this.user with the trimmed value
-    const input = document.getElementById("userNameInput");
-    this.user = input.value.trim();
+        // get username from input field an initialize this.user with the trimmed value
+        const input = document.getElementById("userNameInput");
+        this.user = input.value.trim();
 
-    // set this.user to "gast" if no userNameInput is empty
-    if (!this.user) {
-        this.user = "Gast";
-    }
+        // set this.user to "gast" if no userNameInput is empty
+        if (!this.user) {
+            this.user = "Gast";
+        }
 
 
-    // set this.user to  .p1-score html node
-    const el = document.querySelector('.p1-score');
+        // set this.user to  .p1-score html node
+        const el = document.querySelector('.p1-score');
         const textNode = [...el.childNodes].find(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
-          textNode.textContent = this.user;
-        
+        textNode.textContent = this.user;
+
 
         this.startLevel();
     }
