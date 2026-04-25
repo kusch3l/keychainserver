@@ -134,13 +134,6 @@ lid = (
         .box(wall_t,7,wall_t/2)
         .translate([-inner_w/2-wall_t,0,-wall_t/4])
     )
-    .faces(">Z")
-    .workplane()
-    .rect(inner_w+wall_t-screw_lip, inner_l-screw_lip, forConstruction=True)
-    .vertices()[3]
-    .hole(screw)
-    .translate([wall_t/2,0,inner_h+wall_t/2])
-
 )
 
 lip = (
@@ -163,9 +156,18 @@ box = (
     .cut(sd)
     .cut(ant)
     .cut(hook_screw)
-    .cut(lid)
+    .cut(lid.translate([wall_t/2,0,inner_h+wall_t/2]))
     .cut(sd_cutout)
     .union(lip)
+)
+
+lid= (lid
+    .faces(">Z")
+    .workplane()
+    .rect(inner_w+wall_t-screw_lip, inner_l-screw_lip, forConstruction=True)
+    .vertices()[3]
+    .hole(screw)
+    .translate([wall_t/2,0,inner_h+wall_t/2])
 )
 
 stack = (
