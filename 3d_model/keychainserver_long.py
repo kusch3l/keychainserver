@@ -30,19 +30,20 @@ bat_h=6
 #on/off switch
 swi_w=3.9
 swi_l=8.7
-swi_h=3.5
+swi_h=4.5
 butt_h=3.2 #height off nubsy to switch
 
 #helpers
-wall_t=2
+wall_t=2.5
 sd_offset=sd_overhang-wall_t
-inner_l=esp_l+sd_l+sd_offset-2
+inner_l=esp_l+sd_l+sd_offset
 inner_h=esp_h+bat_h+1 #+1=tolerance
 inner_w=esp_w
 hook_screw_d=4 #m4
 lid_lip=1
 screw_lip=4
 screw=1.5
+tol=0.8 #tolerance
 
 
 # make the Object
@@ -52,7 +53,7 @@ esp = (
     .union(
         Workplane("XY")
         .box(9.5,4,3.5)
-        .translate([0,esp_l/2+2,0.5])
+        .translate([0,esp_l/2+2,1.5])
         .edges("|Y")
         .fillet(1)
         )
@@ -119,7 +120,7 @@ sd_cutout = (
     .translate([0,-inner_l/2-sd_card_w,-wall_t/2])
 )
 
-lid = (
+lidcut = (
     Workplane("XY")
     .box(inner_w+wall_t,inner_l,wall_t)
     .edges("|Y")[2]
@@ -133,6 +134,23 @@ lid = (
         Workplane()
         .box(wall_t,7,wall_t/2)
         .translate([-inner_w/2-wall_t,0,-wall_t/4])
+    )
+)
+lid = (
+    Workplane("XY")
+    .box(inner_w+wall_t-tol,inner_l-tol*2,wall_t)
+    .translate([tol/2,0,0])
+    .edges("|Y")[2]
+    .fillet(1)
+    .union(
+        Workplane()
+        .box((inner_w+wall_t)/3-tol*2,inner_l+wall_t-tol,wall_t/2-tol/2)
+        .translate([(inner_w+wall_t)/3+tol,0,-wall_t/4-tol/4])
+        )
+    .union(
+        Workplane()
+        .box(wall_t+tol,7-tol*2,wall_t/2-tol/2)
+        .translate([-inner_w/2-wall_t+tol/2,0,-wall_t/4-tol/4])
     )
 )
 
@@ -156,7 +174,7 @@ box = (
     .cut(sd)
     .cut(ant)
     .cut(hook_screw)
-    .cut(lid.translate([wall_t/2,0,inner_h+wall_t/2]))
+    .cut(lidcut.translate([wall_t/2,0,inner_h+wall_t/2]))
     .cut(sd_cutout)
     .union(lip)
 )
