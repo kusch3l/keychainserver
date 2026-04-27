@@ -43,7 +43,7 @@ hook_screw_d=4 #m4
 lid_lip=1
 screw_lip=4
 screw=1.5
-tol=0.8 #tolerance
+tol=0.3 #tolerance
 
 
 # make the Object
