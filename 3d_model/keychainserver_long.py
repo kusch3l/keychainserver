@@ -10,8 +10,8 @@ esp_l=21.2
 esp_h=5.5
 
 #antenna connector
-ant_con_x=3
-ant_con_y=2
+ant_con_x=3.5
+ant_con_y=2.5
 
 #sd card SPI interface
 sd_w=17
