@@ -3,6 +3,31 @@ html, body{
 	background: rgba(255, 255, 255, 1);
 }	
 
+#highScoreTable{
+	margin: 0 auto;
+	color: rgba(250, 250, 250, 1);
+	font-weight: 900;
+	font-size: 16pt;
+}
+
+#highScoreTable tr{
+}
+
+#highScoreTable td{
+	width: 200px;
+	text-align: center;
+	border-bottom: 1px solid rgba(100, 100, 100, 1);
+}
+
+#highScoreTable td:first-of-type{
+	width: 50px;
+}
+
+
+#highScoreTable td:nth-of-type(3){
+	text-align: right;
+}
+
 .media {
 	width: 100%;
 	color: rgba(50, 50, 50, 1);
@@ -38,7 +63,7 @@ html, body{
 }
 
 .media .titleBar{
-	height: 350px;
+//	height: 350px;
 //	background: linear-gradient(45deg, rgba(255, 0, 0, 0.5) 0%,        /* Rot */
                 rgba(255, 127, 0, 0.5) 16.6%,   /* Orange */
                 rgba(255, 255, 0, 0.5) 33.3%,   /* Gelb */
@@ -51,6 +76,9 @@ html, body{
 //  -webkit-text-fill-color: transparent;
 }
 
+.msPac{
+	height: 200px;
+}
 
 .media .titleBar img{
 	position: relative;
@@ -117,6 +145,24 @@ html, body{
 	color: rgba(50, 50, 50, 1);
 }
 
+.media .button{
+	width: 200px;
+	height:30px;
+	margin: 0;
+	border-radius: 40px;
+	background: rgba(235, 235, 235, 1);
+	color: rgba(100, 100, 100, 1);
+}
+.media .button div{
+	display: inline-block;
+	margin: -30px 40px 0 -100px;
+	font-size: 2rem;
+	height: 0px;
+	width: 0px;
+	border: lime 0px dashed;
+	background: none;
+}
+
 @media (max-width: 1100px) {
 
 	.media .content a div{
@@ -134,7 +180,7 @@ html, body{
 }
 
 @media (max-width: 1500px) {
-
+	
 	.media .titleBar{
 		height: 400px;
 	}

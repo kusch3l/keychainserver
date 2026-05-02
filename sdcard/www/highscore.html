@@ -7,15 +7,32 @@
 </head>
 <body>
 	<div class="media">
-		<div class="titleBar"><p>Ms Pacman</p></div>
+		<div class="msPac"><p>Ms Pacman</p></div>
 		<div class="welcomeText">
-		<p>Highscore</p><p>Dieser Server ist quasi ein komplett eingenständiges Internet und nicht mit dem WorldWideWeb verbunden sondern allein auf diesem kleinen Schlüsselanhänger. In diesem befindet sich ein ESP31 Mikrocontroller mit eine Knopfzelle und einer MicroSD-Karte. Wenn du genauer verstehen möchtest, wie das ganze funktioniert, rede mitkusch3l, die kann dir das besser erklären.</p>
+		<p>Highscore</p>
+		<table id="highScoreTable">
+			<tr>
+				<td>1</td>
+				<td>tze</td>
+				<td>20000</td>
+			</tr>
+			<tr>
+				<td>2</td>
+				<td>kusch3l</td>
+				<td>10000</td>
+			</tr>
+		</table>
+		<!--<p>Dieser Server ist quasi ein komplett eingenständiges Internet und nicht mit dem WorldWideWeb verbunden sondern allein auf diesem kleinen Schlüsselanhänger. In diesem befindet sich ein ESP31 Mikrocontroller mit eine Knopfzelle und einer MicroSD-Karte. Wenn du genauer verstehen möchtest, wie das ganze funktioniert, rede mitkusch3l, die kann dir das besser erklären.</p>-->
 		</div>
-		<div class="welcomeText"><p>Credits</p><p>Blablabla</p></div>
+		<!--<div class="welcomeText"><p>Credits</p><p>Blablabla</p></div>-->
+		<a href="index.html"><div class="button"><div>&blacktriangleleft;</div>BACK</div></a>
 		<div class="content">
 	
 
 
 </div></body>
-<script >
+<script src="loadHighscore.js"></script>
+<script>
+	window.addEventListener('load', loadJson);
+</script>
 </html>

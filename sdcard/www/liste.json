@@ -1,0 +1,38 @@
+[
+    {
+        "id": 1,
+        "name": "user1234",
+        "punkte": 120
+    },
+    {
+        "id": 2,
+        "name": "user4321",
+        "punkte": 110
+    },
+   {
+        "id": 3,
+        "name": "tze",
+        "punkte": 0,
+        "punkt": 230
+    },
+    {
+        "id": 3,
+        "name": "tze2",
+        "punkte": 70
+    },
+    {
+        "id": 3,
+        "name": "kusch3l",
+        "punkte": 790
+    },
+    {
+        "id": 3,
+        "name": "Gast",
+        "punkte": 790
+    },
+    {
+        "id": 3,
+        "name": "kusch3l",
+        "punkte": 790
+    }
+]
