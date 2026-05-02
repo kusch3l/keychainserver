@@ -5,6 +5,8 @@
 #include "SPI.h"
 
 #include <ESPmDNS.h>
+#include <DNSServer.h>
+
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
@@ -15,9 +17,17 @@
 #include <string>
 
 #define SPI_CS 2
+#define DNS_INTERVAL 30 // Define the DNS interval in milliseconds between processing DNS requests
+
+const IPAddress localIP(4, 3, 2, 1);		   // the IP address the web server, Samsung requires the IP to be in public space
+const IPAddress gatewayIP(4, 3, 2, 1);		   // IP address of the network should be the same as the local IP for captive portals
+const IPAddress subnetMask(255, 255, 255, 0);  // no need to change: https://avinetworks.com/glossary/subnet-mask/
+const String localIPURL = "http://4.3.2.1";	 // a string version of the local IP with http, used for redirecting clients to your webpage
+
 
 bool debug = false; // debug can be toggle on via config file
 
+DNSServer dnsServer;
 AsyncWebServer server(80);
 
 void configureWebsite() {
@@ -144,6 +154,37 @@ void configureGuestbook() {
 
 }
 
+void configureDNSServer(DNSServer &dnsServer, AsyncWebServer &server, const IPAddress &localIP) {
+	// Set the TTL for DNS response and start the DNS server
+	dnsServer.setTTL(3600);
+	dnsServer.start(53, "*", localIP);
+
+  //======================== Webserver ========================
+	// WARNING IOS (and maybe macos) WILL NOT POP UP IF IT CONTAINS THE WORD "Success" https://www.esp8266.com/viewtopic.php?f=34&t=4398
+	// SAFARI (IOS) IS STUPID, G-ZIPPED FILES CAN'T END IN .GZ https://github.com/homieiot/homie-esp8266/issues/476 this is fixed by the webserver serve static function.
+	// SAFARI (IOS) there is a 128KB limit to the size of the HTML. The HTML can reference external resources/images that bring the total over 128KB
+	// SAFARI (IOS) popup browser has some severe limitations (javascript disabled, cookies disabled)
+
+	// Required
+	server.on("/connecttest.txt", [](AsyncWebServerRequest *request) { request->redirect("http://logout.net"); });	// windows 11 captive portal workaround
+	server.on("/wpad.dat", [](AsyncWebServerRequest *request) { request->send(404); });								// Honestly don't understand what this is but a 404 stops win 10 keep calling this repeatedly and panicking the esp32 :)
+
+	// Background responses: Probably not all are Required, but some are. Others might speed things up?
+	// A Tier (commonly used by modern systems)
+	server.on("/generate_204", [](AsyncWebServerRequest *request) { request->redirect(localIPURL); });		   // android captive portal redirect
+	server.on("/redirect", [](AsyncWebServerRequest *request) { request->redirect(localIPURL); });			   // microsoft redirect
+	server.on("/hotspot-detect.html", [](AsyncWebServerRequest *request) { request->redirect(localIPURL); });  // apple call home
+	server.on("/canonical.html", [](AsyncWebServerRequest *request) { request->redirect(localIPURL); });	   // firefox captive portal call home
+	server.on("/success.txt", [](AsyncWebServerRequest *request) { request->send(200); });					   // firefox captive portal call home
+	server.on("/ncsi.txt", [](AsyncWebServerRequest *request) { request->redirect(localIPURL); });			   // windows call home
+
+	// B Tier (uncommon)
+	//  server.on("/chrome-variations/seed",[](AsyncWebServerRequest *request){request->send(200);}); //chrome captive portal call home
+	//  server.on("/service/update2/json",[](AsyncWebServerRequest *request){request->send(200);}); //firefox?
+	//  server.on("/chat",[](AsyncWebServerRequest *request){request->send(404);}); //No stop asking Whatsapp, there is no internet connection
+	//  server.on("/startpage",[](AsyncWebServerRequest *request){request->redirect(localIPURL);});
+}
+
 void setup(){
 
   // config which parts are active (read from file)
@@ -222,6 +263,7 @@ void setup(){
   if (apmode){
     //start wifi in AP mode
     WiFi.mode(WIFI_AP);
+    WiFi.softAPConfig(localIP, gatewayIP, subnetMask); // Configure the soft access point with a specific IP and subnet mask
     WiFi.softAP(ssid, password);
     delay(3000);
     Serial.println("WiFi: " + WiFi.softAPSSID());
@@ -229,6 +271,7 @@ void setup(){
     Serial.print("IP-Adress: ");
     Serial.println(ip);
   }else{
+    //log into existing wlan (for debugging purposes)
     WiFi.begin(ssid, password);
     Serial.print("Connecting to " + ssid);
     while (WiFi.status() != WL_CONNECTED) {  
@@ -243,10 +286,15 @@ void setup(){
   //start local mDNS for url keychainserver.local
   if (MDNS.begin("keychainserver")) {
     Serial.println("mDNS: http://keychainserver.local");
+  }else{
+    Serial.println("mDNS: failed to set up");
   }
 
 
   if (debug) {Serial.println("start server configuration");}
+
+  configureDNSServer(dnsServer, server, localIP);
+
   //init different parts of webserver
   if (www) {
     if (debug) {Serial.println("start www configuration");}
@@ -268,6 +316,7 @@ void setup(){
 }
 
 void loop(){
-
+	dnsServer.processNextRequest();	 // I call this atleast every 10ms in my other projects (can be higher but I haven't tested it for stability)
+	delay(DNS_INTERVAL);	
 }
 
