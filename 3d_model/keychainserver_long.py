@@ -2,7 +2,7 @@ from cadquery import *
 
 # parameters
 dist_h=3
-screw=4
+screw=3.3
 
 #esp32c3 board
 esp_w=18
