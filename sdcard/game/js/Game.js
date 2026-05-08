@@ -1013,7 +1013,7 @@ class JsPacman extends Game {
                 <span class="title">"JS PAC-MAN"</span>
                 <p class="message">HTML - CSS<br><br><span>JAVASCRIPT</span></p>
                 
-                <input type="text" class="userNameInput" id="userNameInput" maxlength="8" placeholder="enter Username">
+                <input type="text" class="userNameInput" id="userNameInput" maxlength="16161616161616161616161616161616" placeholder="enter Username">
                 
                 <button class="start" style="display: none">START</button>
                 <button class="menu" style="display: none">MENU</button>

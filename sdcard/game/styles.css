@@ -185,6 +185,17 @@ body {
     margin: 0 auto;
 }
 
+.js-pacman-playground .splash .userNameInput{
+    position: relative;
+    top: 65%;
+    text-transform: uppercase;
+    font-size: 1.6em;
+    display: block;
+    width: 55%;
+    margin: 0 auto;
+    text-align: center;
+}
+
 .js-pacman-playground .splash button.menu {
     position: relative;
     top: 75%;
