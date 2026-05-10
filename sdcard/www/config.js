@@ -1,4 +1,4 @@
-const form = document.getElementById('userForm');
+const form = document.getElementById('configForm');
 
 function formDataToObject(formData) {
     const obj = {};
@@ -18,12 +18,15 @@ function formDataToObject(formData) {
 
 form.addEventListener('submit', (e) => {
     e.preventDefault(); // Stop default submission
-    // We'll add data handling here next
     const formData = new FormData(configForm);
     const formObject = formDataToObject(formData); // Convert to object
     const jsonData = JSON.stringify(formObject); // Convert object to JSON string
     console.log('JSON Data:', jsonData);
 
+    if (!formObject.old_conf_pw) {
+        alert('Old password is required!');
+        return;
+    }
     // Send JSON to server
     fetch('/api/config', {
         method: 'POST',
