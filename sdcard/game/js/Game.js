@@ -50,16 +50,12 @@ const defaults = {
 
 
 /* load JSON highscorelist */
-var highScoreJson;
 async function loadHighScore() {
     const response = await fetch("highscore.json");
     if (!response.ok) throw new Error("Fehler beim Laden: " + response.status);
     //const scoreList  = await response.json();
     //console.log("here");
-    highScoreJson await response.json();
-    highScoreJson.sort(function(a, b){
-                return b.punkte - a.punkte;
-        });
+   return await response.json();
 }
 
 
@@ -567,7 +563,6 @@ class JsPacman extends Game {
 
                 //send username and score to server -----------------------------------------------------------------------------
 
-           if (highScoreJson.length <= 100 && highScoreJson(highScoreJson.length) >= this.model.score) {
 		fetch('/api/highscore', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -577,7 +572,6 @@ class JsPacman extends Game {
                     .then(res => res.json())
 
                     .catch(err => console.error(err));
-            }
 	
                 hide(this.elements.gameOver);
                 show(this.elements.splash);
