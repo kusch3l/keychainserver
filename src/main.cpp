@@ -39,6 +39,31 @@ void configureWebsite() {
     request->send(404, "text/plain", "File not found");
   });
 
+  server.addHandler(new AsyncCallbackJsonWebHandler("/api/config", [](AsyncWebServerRequest *request, JsonVariant &json){
+    JsonObject jsonData = json.as<JsonObject>();
+    String ssid = jsonData["ssid"]|"ESP32 AP Mode";
+    String password = jsonData["password"]|"123456789";
+    String debug = jsonData["debug"]|"false";
+    String www = jsonData["www"]|"true";
+    String game = jsonData["game"]|"true";
+    String guestbook = jsonData["guestbook"]|"false";
+    String apmode = jsonData["apmode"]|"false";
+    String config_pw = jsonData["config_pw"]|"";
+
+    File configFile = SD.open("/config.txt", O_TRUNC);
+    configFile.println("ssid="+ssid);
+    configFile.println("password="+password);
+    configFile.println("debug="+debug);
+    configFile.println("www="+www);
+    configFile.println("game="+game);
+    configFile.println("guestbook="+guestbook);
+    configFile.println("apmode="+apmode);
+    configFile.println("config_pw="+config_pw);
+    configFile.close();
+
+    request->send(200,"application/json", "{\"ok\":true}");
+    });
+
 }
 
 void configureGame() {

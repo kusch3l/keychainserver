@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>keychainserver config</title>
+	<style>
+		div {
+			margin-bottom: 10px;
+		}
+
+		label {
+			display: inline-block;
+			width: 150px;
+			text-align: right;
+		}
+	</style>
+</head>
+
+<body>
+	<div>
+		<h1> Server config</h1>
+	</div>
+	<div>
+		<form id="configForm">
+			<div>
+				<label for="old_conf_pw">Old Password:</label>
+				<input type="text" id="old_conf_pw" name="old_conf_pw">
+			</div>
+			<div>
+				<label for="new_conf_pw">New Password:</label>
+				<input type="text" id="new_conf_pw" name="new_conf_pw">
+			</div>
+			<div>
+				<label for="ssid">SSID:</label>
+				<input type="text" id="ssid" name="ssid">
+			</div>
+			<div>
+				<label for="password">password:</label>
+				<input type="text" id="password" name="password">
+			</div>
+			<div>
+				<label for="www">website:</label>
+				<input type="checkbox" id="www" name="www">
+			</div>
+			<div>
+				<label for="game">game:</label>
+				<input type="checkbox" id="game" name="game">
+			</div>
+			<div>
+				<label for="guestbook">guestbook:</label>
+				<input type="checkbox" id="guestbook" name="guestbook">
+			</div>
+			<div>
+				<label for="debug">debugmode:</label>
+				<input type="checkbox" id="debug" name="debug">
+			</div>
+			<div>
+				<label for="apmode">apmode:</label>
+				<input type="checkbox" id="apmode" name="apmode">
+			</div>
+			<div>
+				<button type="submit">Submit</button>
+		</form>
+	</div>
+
+</body>
+
+<script src="config.js"></script>
+
+</html>
