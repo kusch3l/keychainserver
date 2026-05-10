@@ -50,12 +50,16 @@ const defaults = {
 
 
 /* load JSON highscorelist */
+var highScoreJson;
 async function loadHighScore() {
-    const response = await fetch("liste.json");
+    const response = await fetch("highscore.json");
     if (!response.ok) throw new Error("Fehler beim Laden: " + response.status);
     //const scoreList  = await response.json();
     //console.log("here");
-    return await response.json();
+    highScoreJson await response.json();
+    highScoreJson.sort(function(a, b){
+                return b.punkte - a.punkte;
+        });
 }
 
 
@@ -562,7 +566,9 @@ class JsPacman extends Game {
             if (this.model.status === STATUS_GAME_OVER) {
 
                 //send username and score to server -----------------------------------------------------------------------------
-                fetch('/api/highscore', {
+
+           if (highScoreJson.length <= 100 && highScoreJson(highScoreJson.length) >= this.model.score) {
+		fetch('/api/highscore', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name: this.user, score: this.model.score })
@@ -571,7 +577,8 @@ class JsPacman extends Game {
                     .then(res => res.json())
 
                     .catch(err => console.error(err));
-
+            }
+	
                 hide(this.elements.gameOver);
                 show(this.elements.splash);
                 this._gameOver = true;
@@ -1013,7 +1020,7 @@ class JsPacman extends Game {
                 <span class="title">"JS PAC-MAN"</span>
                 <p class="message">HTML - CSS<br><br><span>JAVASCRIPT</span></p>
                 
-                <input type="text" class="userNameInput" id="userNameInput" maxlength="16161616161616161616161616161616" placeholder="enter Username">
+                <input type="text" class="userNameInput" id="userNameInput" maxlength="16" placeholder="enter Username">
                 
                 <button class="start" style="display: none">START</button>
                 <button class="menu" style="display: none">MENU</button>

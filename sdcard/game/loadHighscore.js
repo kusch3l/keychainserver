@@ -1,7 +1,7 @@
 var highScoreJson;
 
 async function loadJson() {
-  const requestURL ="list.json";
+  const requestURL ="highscore.json";
   const request = new Request(requestURL);
 
   const response = await fetch(request);
@@ -19,7 +19,6 @@ function scoreWrite(highScoreJson){
 	console.log("length: "+ highScoreJson.length);
 	// forschleife für json
 	for (let i = 0; i <= highScoreJson.length-1; i++){
-		console.log("here");
 		const eintrag = highScoreJson[i];
 		let scoreTable = document.createDocumentFragment();
 		let row = highScoreTable.appendChild(document.createElement('tr'));
@@ -28,7 +27,7 @@ function scoreWrite(highScoreJson){
 		let col3 = row.appendChild(document.createElement('td'));
 		col1.innerHTML = i+1;
 		col2.innerHTML = eintrag.name;
-		col3.innerHTML = eintrag.punkte;
+		col3.innerHTML = eintrag.score;
 		document.querySelector('#highScoreTable').appendChild(scoreTable);
 	}
 }

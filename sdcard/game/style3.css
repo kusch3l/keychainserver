@@ -1,6 +1,15 @@
+@font-face {
+  font-family: 'Press Start 2P';
+  font-style: normal;
+  font-weight: 400;
+  src: local(''),
+       url('./fonts/press-start-2p-v9-latin-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('./fonts/press-start-2p-v9-latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
   
 html, body{
 	background: rgba(255, 255, 255, 1);
+	font-family: 'Press Start 2P', cursive;
 }	
 
 #highScoreTable{
@@ -8,6 +17,8 @@ html, body{
 	color: rgba(250, 250, 250, 1);
 	font-weight: 900;
 	font-size: 16pt;
+font-family: 'Press Start 2P', cursive;
+
 }
 
 #highScoreTable tr{
