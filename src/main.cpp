@@ -78,7 +78,11 @@ void configureWebsite() {
       configFile.close();
 
       request->send(200,"application/json", "{\"ok\":true}");
-      ESP.restart();
+      request->onDisconnect([](){ 
+        Serial.println("restart ESP32");
+        ESP.restart();
+      });
+      
     }else{
       serializeJsonPretty(jsonData,Serial);
       serializeJsonPretty(config,Serial);
