@@ -41,28 +41,51 @@ void configureWebsite() {
 
   server.addHandler(new AsyncCallbackJsonWebHandler("/api/config", [](AsyncWebServerRequest *request, JsonVariant &json){
     JsonObject jsonData = json.as<JsonObject>();
-    String ssid = jsonData["ssid"]|"ESP32 AP Mode";
-    String password = jsonData["password"]|"123456789";
-    String debug = jsonData["debug"]|"false";
-    String www = jsonData["www"]|"true";
-    String game = jsonData["game"]|"true";
-    String guestbook = jsonData["guestbook"]|"false";
-    String apmode = jsonData["apmode"]|"false";
-    String config_pw = jsonData["config_pw"]|"";
+    String ssid = jsonData["ssid"]|"";
+    String password = jsonData["password"]|"";
+    String debug = jsonData["debug"]|"off";
+    String www = jsonData["www"]|"on";
+    String game = jsonData["game"]|"off";
+    String guestbook = jsonData["guestbook"]|"off";
+    String apmode = jsonData["apmode"]|"off";
+    String new_config_pw = jsonData["new_conf_pw"]|"";
+    String old_config_pw = jsonData["old_conf_pw"]|"";
 
-    File configFile = SD.open("/config.txt", O_TRUNC);
-    configFile.println("ssid="+ssid);
-    configFile.println("password="+password);
-    configFile.println("debug="+debug);
-    configFile.println("www="+www);
-    configFile.println("game="+game);
-    configFile.println("guestbook="+guestbook);
-    configFile.println("apmode="+apmode);
-    configFile.println("config_pw="+config_pw);
+    JsonDocument config;
+    File configFile = SD.open("/config.json","r");
+    deserializeJson(config, configFile);
     configFile.close();
+    String config_pw;
+    if(!configFile) {config_pw = "kusch3lIsTheBest";}
+    if (config_pw==old_config_pw){
+      if(new_config_pw!=""){
+        config["config_pw"]=new_config_pw;
+      }
+      if(ssid!=""){
+        config["ssid"]=ssid;
+      }
+      config["password"]=password;
+      config["debug"]=debug;
+      config["www"]=www;
+      config["game"]=game;
+      config["guestbook"]=guestbook;
+      config["apmode"]=apmode;
 
-    request->send(200,"application/json", "{\"ok\":true}");
-    });
+      serializeJsonPretty(config,Serial);
+
+      File configFile = SD.open("/config.json","w");
+      serializeJson(config, configFile);
+      configFile.close();
+
+      request->send(200,"application/json", "{\"ok\":true}");
+      ESP.restart();
+    }else{
+      serializeJsonPretty(jsonData,Serial);
+      serializeJsonPretty(config,Serial);
+      request->send(200,"application/json", "{\"ok\":false}");
+    }
+    configFile.close();
+  }));
 
 }
 
@@ -212,12 +235,6 @@ void configureDNSServer(DNSServer &dnsServer, AsyncWebServer &server, const IPAd
 
 void setup(){
 
-  // config which parts are active (read from file)
-  bool www = true;
-  bool game = false;
-  bool guestbook = false;
-  bool apmode = true; //toggle whether ESP32 connects to WiFi (false) or creates own WiFi/AccesPoint (true)
-
   Serial.begin(115200);
   delay(5000);
 
@@ -233,11 +250,26 @@ void setup(){
     return;
   }
 
-  //define standard ssid/pw
-  String ssid = "ESP32 AP Mode"; 
-  String password = "123456789";
   //read config from sd-card
-  File configFile = SD.open("/config.txt");
+  JsonDocument doc;
+  File file = SD.open("/config.json", "r");
+  deserializeJson(doc, file);
+  file.close();
+  String ssid = doc["ssid"]|"ESP32 AP Mode";
+  String password = doc["password"]|"12345678";
+  String www = doc["www"]|"on";
+  String game = doc["game"]|"off";
+  String guestbook = doc["guestbook"]|"off";
+  String apmode = doc["apmode"]|"on";
+  if(doc["debug"]=="on"){
+    debug = true;
+  }else{
+    debug = false;
+  }
+
+
+
+  /*File configFile = SD.open("/config.txt");
   if (configFile) {
     while (configFile.available()) {
       String line = configFile.readStringUntil('\n');
@@ -283,9 +315,9 @@ void setup(){
     if (debug&&!apmode) {Serial.println("station mode selected");}
   } else {
     Serial.println("No /config.txt - using hardcoded defaults!");
-  }
+  }*/
   
-  if (apmode){
+  if (apmode=="on"){
     //start wifi in AP mode
     WiFi.mode(WIFI_AP);
     WiFi.softAPConfig(localIP, gatewayIP, subnetMask); // Configure the soft access point with a specific IP and subnet mask
@@ -307,7 +339,7 @@ void setup(){
     Serial.println("IP-Adress: " + WiFi.localIP());
   }
   
-  //broken to fix!!!
+  //broken to fix!!! Not really broken, but not working on some devices???
   //start local mDNS for url keychainserver.local
   if (MDNS.begin("keychainserver")) {
     Serial.println("mDNS: http://keychainserver.local");
@@ -321,15 +353,15 @@ void setup(){
   configureDNSServer(dnsServer, server, localIP);
 
   //init different parts of webserver
-  if (www) {
+  if (www=="on") {
     if (debug) {Serial.println("start www configuration");}
     configureWebsite();
   }
-  if (game) {
+  if (game=="on") {
     if (debug) {Serial.println("start game configuration");}
     configureGame();
   }
-  if (guestbook) {
+  if (guestbook=="on") {
     if (debug) {Serial.println("start guestbook configuration");}
     configureGuestbook();
   }

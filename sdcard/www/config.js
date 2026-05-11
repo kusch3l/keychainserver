@@ -21,12 +21,31 @@ form.addEventListener('submit', (e) => {
     const formData = new FormData(configForm);
     const formObject = formDataToObject(formData); // Convert to object
     const jsonData = JSON.stringify(formObject); // Convert object to JSON string
+
     console.log('JSON Data:', jsonData);
 
     if (!formObject.old_conf_pw) {
         alert('Old password is required!');
         return;
     }
+    if (!formObject.www) {
+        jsonData["www"] = "off"
+    }
+    if (!formObject.game) {
+        jsonData["game"] = "off"
+    }
+    if (!formObject.guestbook) {
+        jsonData["guestbook"] = "off"
+    }
+    if (!formObject.debug) {
+        jsonData["debug"] = "off"
+    }
+    if (!formObject.apmode) {
+        jsonData["apmode"] = "off"
+    }
+
+    console.log('JSON Data:', jsonData);
+
     // Send JSON to server
     fetch('/api/config', {
         method: 'POST',
