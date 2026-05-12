@@ -30,13 +30,24 @@ bool debug = false; // debug can be toggle on via config file
 DNSServer dnsServer;
 AsyncWebServer server(80);
 
-void configureWebsite() {
-
-  server.serveStatic("/", SD, "/www")
-        .setDefaultFile("index.html");
+void configureServer() {
 
   server.onNotFound([](AsyncWebServerRequest *request){
     request->send(404, "text/plain", "File not found");
+  });
+
+  server.serveStatic("/config/", SD, "/config")
+        .setDefaultFile("config.html");
+
+  server.on("/api/config", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncResponseStream *response = request->beginResponseStream("application/json");
+    JsonDocument doc;
+    File file = SD.open("/config.json", "r");
+    deserializeJson(doc, file);
+    file.close();
+    doc.remove("config_pw");
+    serializeJson(doc, *response);
+    request->send(response);
   });
 
   server.addHandler(new AsyncCallbackJsonWebHandler("/api/config", [](AsyncWebServerRequest *request, JsonVariant &json){
@@ -90,6 +101,13 @@ void configureWebsite() {
     }
     configFile.close();
   }));
+  
+}
+
+void configureWebsite() {
+
+  server.serveStatic("/", SD, "/www")
+        .setDefaultFile("index.html");
 
 }
 
@@ -357,6 +375,7 @@ void setup(){
   configureDNSServer(dnsServer, server, localIP);
 
   //init different parts of webserver
+  configureServer();
   if (www=="on") {
     if (debug) {Serial.println("start www configuration");}
     configureWebsite();
