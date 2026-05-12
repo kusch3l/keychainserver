@@ -74,8 +74,8 @@ void configureServer() {
       }
       if(ssid!=""){
         config["ssid"]=ssid;
+        config["password"]=password;
       }
-      config["password"]=password;
       config["debug"]=debug;
       config["www"]=www;
       config["game"]=game;
@@ -375,6 +375,10 @@ void setup(){
   configureDNSServer(dnsServer, server, localIP);
 
   //init different parts of webserver
+  if (debug) server.on("/restart", HTTP_GET, [](AsyncWebServerRequest *request) {
+    ESP.restart();
+  });
+
   configureServer();
   if (www=="on") {
     if (debug) {Serial.println("start www configuration");}

@@ -18,31 +18,22 @@ function formDataToObject(formData) {
 
 form.addEventListener('submit', (e) => {
     e.preventDefault(); // Stop default submission
+
     const formData = new FormData(configForm);
     const formObject = formDataToObject(formData); // Convert to object
-    const jsonData = JSON.stringify(formObject); // Convert object to JSON string
-
-    console.log('JSON Data:', jsonData);
 
     if (!formObject.old_conf_pw) {
         alert('Old password is required!');
         return;
     }
-    if (!formObject.www) {
-        jsonData["www"] = "off"
-    }
-    if (!formObject.game) {
-        jsonData["game"] = "off"
-    }
-    if (!formObject.guestbook) {
-        jsonData["guestbook"] = "off"
-    }
-    if (!formObject.debug) {
-        jsonData["debug"] = "off"
-    }
-    if (!formObject.apmode) {
-        jsonData["apmode"] = "off"
-    }
+
+    formObject.www = form.querySelector('#www').checked ? "on" : "off";
+    formObject.game = form.querySelector('#game').checked ? "on" : "off";
+    formObject.guestbook = form.querySelector('#guestbook').checked ? "on" : "off";
+    formObject.debug = form.querySelector('#debug').checked ? "on" : "off";
+    formObject.apmode = form.querySelector('#apmode').checked ? "on" : "off";
+
+    const jsonData = JSON.stringify(formObject); // Convert object to JSON string
 
     console.log('JSON Data:', jsonData);
 
@@ -69,3 +60,16 @@ form.addEventListener('submit', (e) => {
             alert('Failed to submit data.');
         });
 });
+
+fetch("/api/config")
+    .then(res => res.json())
+    .then(data => {
+        form.ssid.value = data["ssid"] ?? "";
+        form.password.value = data["password"] ?? "";
+        form.www.checked = data["www"] === "on";
+        form.game.checked = data["game"] === "on";
+        form.guestbook.checked = data["guestbook"] === "on";
+        form.debug.checked = data["debug"] === "on";
+        form.apmode.checked = data["apmode"] === "on";
+    }
+    );
