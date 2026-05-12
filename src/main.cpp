@@ -22,7 +22,7 @@
 const IPAddress localIP(4, 3, 2, 1);		   // the IP address the web server, Samsung requires the IP to be in public space
 const IPAddress gatewayIP(4, 3, 2, 1);		   // IP address of the network should be the same as the local IP for captive portals
 const IPAddress subnetMask(255, 255, 255, 0);  // no need to change: https://avinetworks.com/glossary/subnet-mask/
-const String localIPURL = "http://4.3.2.1";	 // a string version of the local IP with http, used for redirecting clients to your webpage
+const String localIPURL = "http://4.3.2.1/captive.html";	 // a string version of the local IP with http, used for redirecting clients to your webpage
 
 
 bool debug = false; // debug can be toggle on via config file
@@ -36,8 +36,8 @@ void configureServer() {
     request->send(404, "text/plain", "File not found");
   });
 
-  server.serveStatic("/config/", SD, "/config")
-        .setDefaultFile("config.html");
+  server.serveStatic("/config", SD, "/config/config.html");
+  server.serveStatic("/config.js", SD, "/config/config.js");
 
   server.on("/api/config", HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncResponseStream *response = request->beginResponseStream("application/json");
@@ -88,7 +88,7 @@ void configureServer() {
       serializeJson(config, configFile);
       configFile.close();
 
-      request->send(200,"application/json", "{\"ok\":true}");
+      request->send(200,"application/json", "{\"status\":true}");
       request->onDisconnect([](){ 
         Serial.println("restart ESP32");
         ESP.restart();
@@ -97,7 +97,7 @@ void configureServer() {
     }else{
       serializeJsonPretty(jsonData,Serial);
       serializeJsonPretty(config,Serial);
-      request->send(200,"application/json", "{\"ok\":false}");
+      request->send(200,"application/json", "{\"status\":false}");
     }
     configFile.close();
   }));
@@ -288,56 +288,6 @@ void setup(){
   }else{
     debug = false;
   }
-
-
-
-  /*File configFile = SD.open("/config.txt");
-  if (configFile) {
-    while (configFile.available()) {
-      String line = configFile.readStringUntil('\n');
-      if (line.startsWith("ssid=")){
-        ssid = line.substring(5);
-      }
-      if (line.startsWith("password=")) {
-        password = line.substring(9); //needs to be empty or minimum 8 chars, otherwise standard AP
-      }
-      if (line.startsWith("debug=")) {
-        if (line.substring(6)=="true"){
-          debug = true;
-        }
-      }
-      if (line.startsWith("www=")) {
-        if (line.substring(4)=="true"){
-          www = true;
-        }else if(line.substring(4)=="false"){
-          www = false;
-        }
-      }
-      if (line.startsWith("game=")) {
-        if (line.substring(5) == "true") {
-          game = true;
-        }
-      }
-      if (line.startsWith("guestbook=")) {
-        if (line.substring(10) == "true") {
-          guestbook = true;
-        }
-      }
-      if (line.startsWith("apmode=")) {
-        if (line.substring(7) == "false") {
-          apmode = false;
-        }
-      }
-    }
-    configFile.close();
-    Serial.println("WiFi config loaded from SD: " + ssid);
-    if (debug&&www) {Serial.println("website activated");}
-    if (debug&&game) {Serial.println("game activated");}
-    if (debug&&guestbook) {Serial.println("guestbook activated");}
-    if (debug&&!apmode) {Serial.println("station mode selected");}
-  } else {
-    Serial.println("No /config.txt - using hardcoded defaults!");
-  }*/
   
   if (apmode=="on"){
     //start wifi in AP mode

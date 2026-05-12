@@ -23,7 +23,7 @@ form.addEventListener('submit', (e) => {
     const formObject = formDataToObject(formData); // Convert to object
 
     if (!formObject.old_conf_pw) {
-        alert('Old password is required!');
+        alert('Admin password is required!');
         return;
     }
 
