@@ -34,7 +34,7 @@ platformIO (to program esp32c3)
 
     SPI        ESP32
     3V3   ----   3V3
-    CS    ----    D0
+    CS    ----    D7
     MOSI  ----   D10
     CLK   ----    D8
     MISO  ----    D9

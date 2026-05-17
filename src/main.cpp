@@ -16,7 +16,7 @@
 #include <vector>
 #include <string>
 
-#define SPI_CS 2
+#define SPI_CS D7 //Pin that the SPI CS is wired to
 #define DNS_INTERVAL 30 // Define the DNS interval in milliseconds between processing DNS requests
 
 const IPAddress localIP(4, 3, 2, 1);		   // the IP address the web server, Samsung requires the IP to be in public space
